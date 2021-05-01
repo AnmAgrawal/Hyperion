@@ -7,9 +7,16 @@ import os
 import smtplib
 from sys import platform
 
-"""
-This initializes the pyttsx3 engine with microsoft sapi5"""
-engine = pyttsx3.init('sapi5') #sapi5 is used to use the default voices present in windows
+print(platform)
+if platform == "linux" or platform == "linux32":
+    """This initializes the pyttsx3 engine with espeak for linux"""
+    engine = pyttsx3.init('espeak')
+elif platform == "darwin":
+    """This initializes the pyttsx3 engine with NSSpeechSynthesizer on Mac OS X"""
+    engine = pyttsx3.init('nsss')
+else:
+    """This initializes the pyttsx3 engine with microsoft sapi5"""
+    engine = pyttsx3.init('sapi5') #sapi5 is used to use the default voices present in windows
 
 voices = engine.getProperty('voices')
 rate = engine.getProperty('rate')
