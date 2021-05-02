@@ -6,6 +6,7 @@ import webbrowser
 import os
 import smtplib
 from sys import platform
+from googletrans import Translator
 
 print(platform)
 if platform == "linux" or platform == "linux32":
@@ -52,13 +53,17 @@ def  takeCommand():
         audio = recognize.listen(source)
     try:
         print("Recognizing")
-        query = recognize.recognize_google(audio, language='en-in')
-        print(f"User said :{query}\n")
+        translator = Translator()
+        hindi_query = recognize.recognize_google(audio, language='hi-In')
+        print(f"in hindi : {hindi_query}\n")
+        query = translator.translate(hindi_query, dest='en')
+        print(query.src)
+        print(f"User said :{query.text}\n")
     except Exception as e:
-        print(e.with_traceback)
+        print(e)
         print("Please repeat")
         return "None" 
-    return query
+    return query.text
 
 def sendEmail(to, content):
     server = smtplib.SMTP('smtp.gmail.com', 587)
