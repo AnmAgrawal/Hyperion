@@ -8,7 +8,6 @@ import smtplib
 from sys import platform
 from googletrans import Translator
 
-print(platform)
 if platform == "linux" or platform == "linux32":
     """This initializes the pyttsx3 engine with espeak for linux"""
     engine = pyttsx3.init('espeak')
@@ -44,7 +43,7 @@ def wishMe():
 
     speak('I am Hyperion sir. How may I help you')
 
-def  takeCommand():
+def  takeCommandInEnglish():
     """This function takes microphone input from user and converts it to string output"""
     recognize = sr.Recognizer()
     with sr.Microphone() as source:
@@ -53,6 +52,24 @@ def  takeCommand():
         audio = recognize.listen(source)
     try:
         print("Recognizing")
+        english_query = recognize.recognize_google(audio, language='en-in')
+        print(f"User said :{english_query}\n")
+    except Exception as e:
+        print(e)
+        print("Please repeat")
+        return "None" 
+    return english_query
+
+def  takeCommandInHindi():
+    """This function takes microphone input from user and converts it to string output"""
+    recognize = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening")
+        recognize.pause_threshold = 1
+        audio = recognize.listen(source)
+    try:
+        print("Recognizing")
+        
         translator = Translator()
         hindi_query = recognize.recognize_google(audio, language='hi-In')
         print(f"in hindi : {hindi_query}\n")
@@ -75,8 +92,20 @@ def sendEmail(to, content):
 
 if __name__ == "__main__":
     wishMe()
+    speak("Choose your language - hindi or english")
+    recognize = sr.Recognizer()
+    language = ""
+    query = ""
+    with sr.Microphone() as source:
+        recognize.pause_threshold = 1
+        audio = recognize.listen(source)
+        language = recognize.recognize_google(audio, language='en-IN', show_all=True)
+    print(language)
     while True:
-        query = takeCommand().lower()
+        if 'hindi' in language:
+            query = takeCommandInHindi().lower()
+        else:
+            query = takeCommandInEnglish().lower()
         
     #Logic for executing tasks
         if 'wikipedia' in query:
@@ -103,7 +132,7 @@ if __name__ == "__main__":
         elif 'send email' in query:
             try:
                 speak('give your massage')
-                content = takeCommand()
+                content = takeCommandInEnglish()
                 to = "anmolagrawal19@outlook.com"
                 sendEmail(to, content)
                 speak("Email has been sent")
