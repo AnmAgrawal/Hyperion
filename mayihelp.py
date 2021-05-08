@@ -9,12 +9,23 @@ import wolframalpha
 import json
 import requests
 from tkinter import *
+from sys import platform
+from googletrans import Translator
 
-engine = pyttsx3.init('sapi5')
+if platform == "linux" or platform == "linux32":
+    """This initializes the pyttsx3 engine with espeak for linux"""
+    engine = pyttsx3.init('espeak')
+elif platform == "darwin":
+    """This initializes the pyttsx3 engine with NSSpeechSynthesizer on Mac OS X"""
+    engine = pyttsx3.init('nsss')
+else:
+    """This initializes the pyttsx3 engine with microsoft sapi5"""
+    engine = pyttsx3.init('sapi5') #sapi5 is used to use the default voices present in windows
+
 engine.setProperty('rate', 150)
 engine.setProperty('volume', 1.5)
 voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
+engine.setProperty('voice', voices[1].id)
 
 window = Tk()
 
@@ -24,7 +35,10 @@ global var1
 var = StringVar()
 var1 = StringVar()
 
-def speak(audio):
+def speak(audio, hindi):
+    if hindi:
+        hindi_audio = Translator().translate(audio).text
+        audio = hindi_audio
     engine.say(audio)
     engine.runAndWait()
 
@@ -47,14 +61,14 @@ def wishme():
     elif hour>=12 and hour<18:
         var.set("Good Afternoon !!")
         window.update()
-        speak("Goof Afternoon")
+        speak("Good Afternoon")
     
     else:
         var.set("Good Evening !!")
         window.update()
         speak("Good Evening")
-    var.set("I am your Assistant. Please tell me how may i help you")
-    speak("I am your Assistant. Please tell me how may i help you")
+    var.set("I am your virtual Assistant. Please tell me how may i help you")
+    speak("I am your virtual Assistant. Please tell me how may i help you")
     
 def takeCommand():
     '''
@@ -78,7 +92,58 @@ def takeCommand():
     var1.set(query)
     window.update()
     return query
-   
+def  takeCommandInEnglish():
+    """This function takes microphone input from user and converts it to string output"""
+    recognize = sr.Recognizer()
+    with sr.Microphone() as source:
+        var.set("Listening...")
+        window.update()
+        print("Listening")
+        recognize.pause_threshold = 1
+        audio = recognize.listen(source)
+    try:
+        var.set("Recognizing...")
+        window.update()
+        print("Recognizing")
+        english_query = recognize.recognize_google(audio, language='en-in')
+        print(f"User said :{english_query}\n")
+    except Exception as e:
+        print(e)
+        var.set("Please repeat")
+        window.update()
+        return "None" 
+    var1.set(english_query)
+    window.update()
+    return english_query
+
+def  takeCommandInHindi():
+    """This function takes microphone input from user and converts it to string output"""
+    print("hindi function")
+    recognize = sr.Recognizer()
+    with sr.Microphone() as source:
+        var.set("...")
+        window.update()
+        print("Listening")
+        recognize.pause_threshold = 1
+        audio = recognize.listen(source)
+    try:
+        var.set("...")
+        window.update()
+        print("Recognizing")
+        
+        translator = Translator()
+        hindi_query = recognize.recognize_google(audio, language='hi-In')
+        print(f"in hindi : {hindi_query}\n")
+        query = translator.translate(hindi_query, dest='en')
+        print(query.src)
+        print(f"User said :{query.text}\n")
+    except Exception as e:
+        print(e)
+        var.set("hindi")
+        return "None" 
+    var1.set(query.text)
+    return query.text
+
 
 def sendEmail(to, content):
     server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -91,28 +156,52 @@ def sendEmail(to, content):
 def play():
     btn2['state'] = 'disabled'
     btn0['state'] = 'disabled'
+    hindi = False
+    translator = Translator()
     btn1.configure(bg = 'orange')
     wishme()
+    speak("Choose your language - hindi or english")
+    recognize = sr.Recognizer()
+    language = ""
+    query = ""
+    with sr.Microphone() as source:
+        recognize.pause_threshold = 1
+        audio = recognize.listen(source)
+        language = recognize.recognize_google(audio, language='en-IN')
+    print("selected - ",language)
     while True:
         btn1.configure(bg = 'orange')
-        query = takeCommand().lower()
-        if 'exit' in query:
-            var.set("Bye sir")
-            btn1.configure(bg = '#5C85FB')
-            btn2['state'] = 'normal'
-            btn0['state'] = 'normal'
-            window.update()
-            speak("Bye sir")
-            break
+        if 'Hindi' in language:
+            hindi = True
+            query = takeCommandInHindi().lower()
+            if 'exit' in query:
+                var.set("Bye sir")
+                btn1.configure(bg = '#5C85FB')
+                btn2['state'] = 'normal'
+                btn0['state'] = 'normal'
+                window.update()
+                speak("Bye sir")
+                break
+        else:
+            query = takeCommandInEnglish().lower()
+            if 'exit' in query:
+                var.set("Bye sir")
+                btn1.configure(bg = '#5C85FB')
+                btn2['state'] = 'normal'
+                btn0['state'] = 'normal'
+                window.update()
+                speak("Bye sir")
+                break
 
         #Logic for executing tasks based on query
-        elif 'wikipedia' in query:
+        if 'wikipedia' in query:
             if 'open wikipedia' in query:
                 webbrowser.open('wikipedia.com')
             else:
                 try:
                     var.set("searching wikipedia...")
                     window.update()
+                    speak("searching wikipedia",hindi)
                     speak("searching wikipedia")
                     query = query.replace("according to wikipedia", "")
                     results = wikipedia.summary(query, sentences=2)
@@ -135,7 +224,7 @@ def play():
             webbrowser.open("stackoverflow.com", autoraise=True)
 
         elif 'play music' in query:
-            music_dir = 'C:\\Users\\Anjali\\Music'
+            music_dir = 'D:\\Songs'
             songs = os.listdir(music_dir)
             print(songs)
             os.startfile(os.path.join(music_dir, songs[0]))
@@ -163,7 +252,7 @@ def play():
                 speak("Sorry sir, I am not able to sent email.")
 
         elif 'news' in query:
-            news = webbrowser.open_new_tab("""https://timesofindia.indiatimes.com/home/headlines""")
+            news = webbrowser.open_new_tab("""wionews.com""")
             speak("Here are some headlines from the Times of India, Enjoy reading!!")
 
         elif 'search'  in query:
@@ -197,8 +286,8 @@ def play():
                   'In different cities, get top headline news from times of india and you can ask me computational or geographical questions too!')
        
         elif "who made you" in query or "who created you" in query or "who discovered you" in query:
-            speak("I was built by Anjali")
-            var.set("I was built by Anjali")
+            speak("I was built by Anonymous")
+            var.set("I was built by Anonymous")
             window.update()
 
         elif "weather" in query:
@@ -250,7 +339,7 @@ def update(ind):
     window.after(100, update, ind)
 
 label2 = Label(window, textvariable = var1, bg = '#FAB60C')
-label2.config(font=("Courier", 20))
+label2.config(font=("Verdana", 20))
 var1.set('User Said:')
 label2.pack()
 
