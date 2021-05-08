@@ -23,6 +23,7 @@ rate = engine.getProperty('rate')
 volume = engine.getProperty('volume')
 
 engine.setProperty('voice', voices[1].id)
+print(voices[2].id," , ")
 engine.setProperty('rate', 150)
 engine.setProperty('volume', 1.5)
 
