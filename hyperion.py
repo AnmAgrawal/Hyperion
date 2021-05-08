@@ -23,6 +23,7 @@ rate = engine.getProperty('rate')
 volume = engine.getProperty('volume')
 
 engine.setProperty('voice', voices[1].id)
+print(voices[2].id," , ")
 engine.setProperty('rate', 150)
 engine.setProperty('volume', 1.5)
 
@@ -62,6 +63,7 @@ def  takeCommandInEnglish():
 
 def  takeCommandInHindi():
     """This function takes microphone input from user and converts it to string output"""
+    print("hindi function")
     recognize = sr.Recognizer()
     with sr.Microphone() as source:
         print("Listening")
@@ -99,10 +101,10 @@ if __name__ == "__main__":
     with sr.Microphone() as source:
         recognize.pause_threshold = 1
         audio = recognize.listen(source)
-        language = recognize.recognize_google(audio, language='en-IN', show_all=True)
-    print(language)
+        language = recognize.recognize_google(audio, language='en-IN')
+    print("selected - ",language)
     while True:
-        if 'hindi' in language:
+        if 'Hindi' in language:
             query = takeCommandInHindi().lower()
         else:
             query = takeCommandInEnglish().lower()
@@ -140,5 +142,5 @@ if __name__ == "__main__":
                 print(e.__cause__)
                 speak("Email couldn't be sent")
 
-        elif 'quit' in query:
+        elif 'quit' in query or 'bye' in query:
             exit()
