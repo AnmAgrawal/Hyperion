@@ -48,50 +48,30 @@ def exit():
     window.update()
     window.destroy()
 
-def wishme():
+def wishme(hindi):
     '''
     This function wish the user according to time.
     '''
-    hour = int(datetime.datetime.now().hour)
-    if hour>=0 and hour<12:
-        var.set("Good Morning !!")
-        window.update()
-        speak("Good Morning")
+    if hindi:
+        hour = int(datetime.datetime.now().hour)
+        if hour>=0 and hour<12:
+            var.set(translator.translate("Good Morning !!", des='hindi'))
+            window.update()
+            speak(translator.translate("Good Morning", dest='hindi'))
 
-    elif hour>=12 and hour<18:
-        var.set("Good Afternoon !!")
-        window.update()
-        speak("Good Afternoon")
+        elif hour>=12 and hour<18:
+            var.set(translator.translate("Good Afternoon", dest='hindi'))
+            window.update()
+            speak(translator.translate("Good Afternoon", dest='hindi'))
+
+        else:
+            var.set(translator.translate("Good Evening !!", dest='hindi'))
+            window.update()
+            speak(translator.translate("Good Evening", dest='hindi'))
+        var.set("I am your virtual Assistant. Please tell me how may i help you")
+        speak("I am your virtual Assistant. Please tell me how may i help you")
     
-    else:
-        var.set("Good Evening !!")
-        window.update()
-        speak("Good Evening")
-    var.set("I am your virtual Assistant. Please tell me how may i help you")
-    speak("I am your virtual Assistant. Please tell me how may i help you")
-    
-def takeCommand():
-    '''
-    This function takes microphone input from user and returns string output
-    '''
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        var.set("Listening...")
-        window.update()
-        print("Listening...")
-        r.pause_threshold = 1
-        r.energy_threshold = 400
-        audio = r.listen(source)
-    try:
-        var.set("Recognizing...")
-        window.update()
-        print("Recognizing")
-        query = r.recognize_google(audio, language='en-in')
-    except Exception as e:
-        return "None"
-    var1.set(query)
-    window.update()
-    return query
+
 def  takeCommandInEnglish():
     """This function takes microphone input from user and converts it to string output"""
     recognize = sr.Recognizer()
@@ -119,19 +99,19 @@ def  takeCommandInEnglish():
 def  takeCommandInHindi():
     """This function takes microphone input from user and converts it to string output"""
     print("hindi function")
+    translator = Translator()
     recognize = sr.Recognizer()
     with sr.Microphone() as source:
-        var.set("...")
+        var.set(translator.translate("listening", des='hindi'))
         window.update()
         print("Listening")
         recognize.pause_threshold = 1
         audio = recognize.listen(source)
     try:
-        var.set("...")
+        var.set(translator.translate("listening", des='hindi'))
         window.update()
         print("Recognizing")
         
-        translator = Translator()
         hindi_query = recognize.recognize_google(audio, language='hi-In')
         print(f"in hindi : {hindi_query}\n")
         query = translator.translate(hindi_query, dest='en')
@@ -159,7 +139,7 @@ def play():
     hindi = False
     translator = Translator()
     btn1.configure(bg = 'orange')
-    wishme()
+    
     speak("Choose your language - hindi or english")
     recognize = sr.Recognizer()
     language = ""
@@ -173,6 +153,7 @@ def play():
         btn1.configure(bg = 'orange')
         if 'Hindi' in language:
             hindi = True
+            wishme(hindi)
             query = takeCommandInHindi().lower()
             if 'exit' in query:
                 var.set("Bye sir")
@@ -183,6 +164,7 @@ def play():
                 speak("Bye sir")
                 break
         else:
+            wishme(hindi)
             query = takeCommandInEnglish().lower()
             if 'exit' in query:
                 var.set("Bye sir")
@@ -202,17 +184,17 @@ def play():
                     var.set("searching wikipedia...")
                     window.update()
                     speak("searching wikipedia",hindi)
-                    speak("searching wikipedia")
+                    speak("searching wikipedia",hindi)
                     query = query.replace("according to wikipedia", "")
                     results = wikipedia.summary(query, sentences=2)
-                    speak("According to wikipedia")
+                    speak("According to wikipedia",hindi)
                     var.set(results)
                     window.update()
-                    speak(results)
+                    speak(results,hindi)
                 except Exception as e:
                     var.set('sorry sir could not find any results')
                     window.update()
-                    speak('sorry sir could not find any results')
+                    speak('sorry sir could not find any results', hindi)
 
         elif 'youtube' in query:
             webbrowser.open_new_tab("youtube.com")
@@ -233,7 +215,7 @@ def play():
             strTime = datetime.datetime.now().strftime("%H:%M:%S")
             var.set(f"Sir, the time is : {strTime}\n")
             window.update()
-            speak(f"Sir, the time is {strTime}")
+            speak(f"Sir, the time is {strTime}",hindi)
             print(f"Sir, the time is : {strTime}\n")
 
         elif 'open code' in query:
@@ -242,18 +224,18 @@ def play():
 
         elif 'email to anjali' in query:
             try:
-                speak("what should i say?")
+                speak("what should i say?",hindi)
                 content = takeCommand()
                 to = "anjalichourishi999@gmail.com"
                 sendEmail(to, content)
-                speak("Email has been sent")
+                speak("Email has been sent",hindi)
             except Exception as e:
                 print(e)
-                speak("Sorry sir, I am not able to sent email.")
+                speak("Sorry sir, I am not able to send email.", hindi)
 
         elif 'news' in query:
             news = webbrowser.open_new_tab("""wionews.com""")
-            speak("Here are some headlines from the Times of India, Enjoy reading!!")
+            speak("Here are some headlines from the Times of India, Enjoy reading!!", hindi)
 
         elif 'search'  in query:
             query = query.replace("search", "")
@@ -262,7 +244,7 @@ def play():
         elif 'ask' in query or "What" in query:
             var.set('I can answer to computational and geographical questions and what question do you want to ask now')
             window.update()
-            speak('I can answer to computational and geographical questions  and what question do you want to ask now')
+            speak('I can answer to computational and geographical questions  and what question do you want to ask now', hindi)
             question=takeCommand()
             app_id="KX6ALE-U6WK7L7K97"
             client = wolframalpha.Client('R2K75H-7ELALHR35X')
@@ -286,14 +268,14 @@ def play():
                   'In different cities, get top headline news from times of india and you can ask me computational or geographical questions too!')
        
         elif "who made you" in query or "who created you" in query or "who discovered you" in query:
-            speak("I was built by Anonymous")
+            speak("I was built by Anonymous", hindi)
             var.set("I was built by Anonymous")
             window.update()
 
         elif "weather" in query:
             api_key="b1667147637e9e31642fd01106b9eb63"
             base_url="https://api.openweathermap.org/data/2.5/weather?"
-            speak("what is the city name?")
+            speak("what is the city name?", hindi)
             var.set("What is the city name?")
             window.update()
             city_name=takeCommand()
@@ -318,7 +300,7 @@ def play():
                       "\n humidity in percentage is " +
                       str(current_humidiy) +
                       "\n description  " +
-                      str(weather_description))
+                      str(weather_description), hindi)
                 print(" Temperature in kelvin unit = " +
                       str(current_temperature) +
                       "\n humidity (in percentage) = " +
@@ -327,7 +309,7 @@ def play():
                       str(weather_description))
 
         elif "goodbye" in query or "ok bye" in query or "stop" in query:
-            speak('your personal assistant is shutting down,Good bye')
+            speak('your personal assistant is shutting down,Good bye', hindi)
             var.set('your personal assistant is shutting down,Good bye')
             window.update()
             window.destroy()
