@@ -28,10 +28,13 @@ voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
 
 window = Tk()
+window.attributes('-fullscreen', True)
 
 global var
 global var1
-
+global translator
+hindi = False
+translator = Translator()
 var = StringVar()
 var1 = StringVar()
 
@@ -44,7 +47,7 @@ def speak(audio, hindi):
 
 def exit():
     var.set('your personal assistant is shutting down,Good bye')
-    speak('your personal assistant is shutting down,Good bye')
+    speak('your personal assistant is shutting down,Good bye', hindi)
     window.update()
     window.destroy()
 
@@ -52,25 +55,43 @@ def wishme(hindi):
     '''
     This function wish the user according to time.
     '''
+    
     if hindi:
         hour = int(datetime.datetime.now().hour)
         if hour>=0 and hour<12:
-            var.set(translator.translate("Good Morning !!", des='hindi'))
+            var.set(translator.translate("Good Morning !!", dest='hindi').text)
             window.update()
-            speak(translator.translate("Good Morning", dest='hindi'))
+            speak(translator.translate("Good Morning", dest='hindi').text)
 
         elif hour>=12 and hour<18:
-            var.set(translator.translate("Good Afternoon", dest='hindi'))
+            var.set(translator.translate("Good Afternoon", dest='hindi').text)
             window.update()
-            speak(translator.translate("Good Afternoon", dest='hindi'))
+            speak(translator.translate("Good Afternoon", dest='hindi').text)
 
         else:
-            var.set(translator.translate("Good Evening !!", dest='hindi'))
+            var.set(translator.translate("Good Evening !!", dest='hindi').text)
             window.update()
-            speak(translator.translate("Good Evening", dest='hindi'))
-        var.set("I am your virtual Assistant. Please tell me how may i help you")
-        speak("I am your virtual Assistant. Please tell me how may i help you")
-    
+            speak(translator.translate("Good Evening", dest='hindi').text)
+        var.set(translator.translate("I am your virtual Assistant. Please tell me how may i help you", dest='hindi').text)
+        speak("I am your virtual Assistant. Please tell me how may i help you", hindi)
+    else:
+        hour = int(datetime.datetime.now().hour)
+        if hour>=0 and hour<12:
+            var.set("Good Morning !!")
+            window.update()
+            speak("Good Morning", False)
+
+        elif hour>=12 and hour<18:
+            var.set("Good Afternoon")
+            window.update()
+            speak("Good Afternoon", hindi)
+
+        else:
+            var.set("Good Evening")
+            window.update()
+            speak("Good Evening")
+        var.set("I am your virhow may i help you")
+        speak("I am your virtual Assistant. Please tell me how may i help you", hindi)
 
 def  takeCommandInEnglish():
     """This function takes microphone input from user and converts it to string output"""
@@ -99,16 +120,15 @@ def  takeCommandInEnglish():
 def  takeCommandInHindi():
     """This function takes microphone input from user and converts it to string output"""
     print("hindi function")
-    translator = Translator()
     recognize = sr.Recognizer()
     with sr.Microphone() as source:
-        var.set(translator.translate("listening", des='hindi'))
+        var.set(translator.translate("listening", dest='hindi'))
         window.update()
         print("Listening")
         recognize.pause_threshold = 1
         audio = recognize.listen(source)
     try:
-        var.set(translator.translate("listening", des='hindi'))
+        var.set(translator.translate("listening", dest='hindi'))
         window.update()
         print("Recognizing")
         
@@ -136,11 +156,10 @@ def sendEmail(to, content):
 def play():
     btn2['state'] = 'disabled'
     btn0['state'] = 'disabled'
-    hindi = False
-    translator = Translator()
+    
     btn1.configure(bg = 'orange')
     
-    speak("Choose your language - hindi or english")
+    speak("Choose your language - hindi or english", True)
     recognize = sr.Recognizer()
     language = ""
     query = ""
@@ -225,7 +244,7 @@ def play():
         elif 'email to anjali' in query:
             try:
                 speak("what should i say?",hindi)
-                content = takeCommand()
+                content = takeCommandInEnglish()
                 to = "anjalichourishi999@gmail.com"
                 sendEmail(to, content)
                 speak("Email has been sent",hindi)
@@ -245,7 +264,7 @@ def play():
             var.set('I can answer to computational and geographical questions and what question do you want to ask now')
             window.update()
             speak('I can answer to computational and geographical questions  and what question do you want to ask now', hindi)
-            question=takeCommand()
+            question=takeCommandInEnglish()
             app_id="KX6ALE-U6WK7L7K97"
             client = wolframalpha.Client('R2K75H-7ELALHR35X')
             res = client.query(question)
@@ -278,7 +297,7 @@ def play():
             speak("what is the city name?", hindi)
             var.set("What is the city name?")
             window.update()
-            city_name=takeCommand()
+            city_name=takeCommandInEnglish()
             complete_url=base_url+"appid="+api_key+"&q="+city_name
             response = requests.get(complete_url)
             x=response.json()
@@ -326,9 +345,9 @@ var1.set('User Said:')
 label2.pack()
 
 label1 = Label(window, textvariable = var, bg = '#ADD8E6', height=5)
-label1.config(font=("Courier", 20))
+label1.config(font=("Verdana", 20))
 var.set('Welcome')
-speak('Your Personal assistant is loading...... Please wait a minute')
+speak('Your Personal assistant is loading...... Please wait a minute', True)
 print('Your Personal assistant is loading...... Please wait a minute')
 label1.pack()
 
@@ -340,13 +359,13 @@ label.pack()
 window.after(0, update, 0)
 
 btn0 = Button(text = 'WISH ME',width = 20, command = wishme, bg = '#5C85FB')
-btn0.config(font=("Courier", 12))
+btn0.config(font=("Nirmala UI", 12))
 btn0.pack()
 btn1 = Button(text = 'PLAY',width = 20,command = play, bg = '#5C85FB')
-btn1.config(font=("Courier", 12))
+btn1.config(font=("Roboto", 12))
 btn1.pack()
 btn2 = Button(text = 'EXIT',width = 20, command = exit, bg = '#5C85FB')
-btn2.config(font=("Courier", 12))
+btn2.config(font=("Raleway", 12))
 btn2.pack()
 
 
